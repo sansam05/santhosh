@@ -1,0 +1,143 @@
+---
+import '../styles/global.css'
+import Layout from "../layouts/Layout.astro"
+import Header from '../components/Header.astro'
+import Footer from '../components/Footer.astro'
+import Bars from '../components/Bars.astro'
+
+const socials = [
+  { icon: 'ri-mail-line', link: 'mailto:santhosh10200516@gmail.com' },
+  { icon: 'ri-linkedin-fill', link: 'https://www.linkedin.com/in/m-santhosh-515507305?utm_source=share&utm_campaign=share_via&utm_content=profile&utm_medium=android_app' },
+  { icon: 'ri-github-line', link: 'https://github.com/sansam05' },
+]
+---
+
+<Layout>
+  <Header />
+  <main class="py-20 px-3">
+    <div class="max-w-3xl mx-auto p-5 bg-white border-3 shadow-[8px_8px_0px_rgba(0,0,0,0.3)] relative">
+      <h1 class="text-4xl font-medium mb-8 text-center">Let's Connect</h1>
+      <p class="text-lg text-center mb-10">
+        Feel free to reach out to discuss project collaborations, internships, or just to say hello.
+      </p>
+
+      <!-- 
+        - I've added an id 'contact-form' to make it easy to select in JavaScript.
+        - The 'action' and 'method' attributes are removed, as JS will handle the submission.
+      -->
+      <form id="contact-form" class="flex flex-col gap-6 max-w-lg mx-auto">
+        <!-- THIS IS THE WEB3FORM ACCESS KEY -->
+        <input type="hidden" name="access_key" value="e14e6ae3-43ec-4c4d-9258-bfdd5b7a32ce">
+        <!-- 
+          - Added other hidden inputs for better form handling
+          - You can customize the subject line here
+        -->
+        <input type="hidden" name="subject" value="New Contact Form Submission from Portfolio">
+        <input type="hidden" name="from_name" value="Portfolio Contact">
+
+        <div>
+          <label for="name" class="block text-sm font-medium text-gray-700">Name</label>
+          <input type="text" name="name" id="name" required
+            class="mt-1 block w-full px-3 py-2 border-2 border-black rounded-md shadow-sm focus:outline-none focus:ring-black focus:border-black sm:text-sm" />
+        </div>
+        <div>
+          <label for="email" class="block text-sm font-medium text-gray-700">Email</label>
+          <input type="email" name="email" id="email" required
+            class="mt-1 block w-full px-3 py-2 border-2 border-black rounded-md shadow-sm focus:outline-none focus:ring-black focus:border-black sm:text-sm" />
+        </div>
+        <div>
+          <label for="message" class="block text-sm font-medium text-gray-700">Message</label>
+          <textarea id="message" name="message" rows="4" required
+            class="mt-1 block w-full px-3 py-2 border-2 border-black rounded-md shadow-sm focus:outline-none focus:ring-black focus:border-black sm:text-sm"></textarea>
+        </div>
+        
+        <!-- This div will show the form submission status -->
+        <div id="form-status" class="text-center font-medium" data-message=""></div>
+
+        <button type="submit" id="submit-button"
+          class="inline-flex justify-center py-2 px-6 border-3 rounded-full shadow-sm text-md font-medium text-black bg-[var(--blue)] hover:shadow-[4px_4px_0px_rgba(0,0,0,0.3)] transition-all duration-200 disabled:opacity-70 disabled:cursor-not-allowed">
+          Send Message
+        </button>
+      </form>
+
+      <div class="mt-10 pt-6 border-t border-black text-center">
+        <h2 class="text-xl font-medium mb-4">Or find me on</h2>
+        <div class="flex justify-center gap-5">
+          {socials.map(item => (
+            <a href={item.link} target="_blank" class="transition-all duration-200 hover:translate-y-[2px]"><i class={`${item.icon} text-2xl`}></i></a>
+          ))}
+        </div>
+      </div>
+      <Bars />
+    </div>
+  </main>
+  <Footer />
+
+  <!-- JavaScript for handling the form submission -->
+  <script>
+    const form = document.getElementById('contact-form') as HTMLFormElement;
+    const statusEl = document.getElementById('form-status');
+    const submitButton = document.getElementById('submit-button') as HTMLButtonElement;
+
+    form.addEventListener('submit', async (e) => {
+      e.preventDefault();
+      
+      if (!statusEl || !submitButton) return;
+
+      const formData = new FormData(form);
+      const object = Object.fromEntries(formData);
+      const json = JSON.stringify(object);
+
+      statusEl.innerHTML = 'Sending...';
+      statusEl.className = 'text-center font-medium text-gray-600';
+      submitButton.disabled = true;
+
+      try {
+        const response = await fetch('https://api.web3forms.com/submit', {
+          method: 'POST',
+          headers: {
+            'Content-Type': 'application/json',
+            'Accept': 'application/json'
+          },
+          body: json
+        });
+
+        const result = await response.json();
+
+        if (result.success) {
+          statusEl.innerHTML = 'Message Sent!';
+          statusEl.className = 'text-center font-medium text-green-600';
+          form.reset(); // Clear the form fields
+        } else {
+          console.error('Form submission error:', result);
+          statusEl.innerHTML = `Error: ${result.message || 'Could not send message.'}`;
+          statusEl.className = 'text-center font-medium text-red-600';
+        }
+      } catch (error) {
+        console.error('Fetch error:', error);
+        statusEl.innerHTML = 'Error: Something went wrong.';
+        statusEl.className = 'text-center font-medium text-red-600';
+      } finally {
+        submitButton.disabled = false;
+        // Clear the message after 5 seconds
+        setTimeout(() => {
+          statusEl.innerHTML = '';
+          statusEl.className = 'text-center font-medium';
+        }, 5000);
+      }
+    });
+  </script>
+</Layout>
+
+<style>
+  /* Optional: Add a little style for the status messages */
+  #form-status.text-green-600 {
+    color: #16a34a; /* Tailwind green-600 */
+  }
+  #form-status.text-red-600 {
+    color: #dc2626; /* Tailwind red-600 */
+  }
+  #form-status.text-gray-600 {
+    color: #4b5563; /* Tailwind gray-600 */
+  }
+</style>

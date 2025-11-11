@@ -1,0 +1,294 @@
+---
+// Fetch data from API
+const response = await fetch('https://portfolio.triodedevs.workers.dev/public/user/tri_m006');
+const apiData = await response.json();
+
+// Transform API data to testimonial format
+const testimonials = apiData.data.map((project: any) => ({
+  quote: project.short_description,
+  name: project.title,
+  designation: `${project.status} • ${project.metrics.view_count} views • ${project.metrics.like_count} likes`,
+  src: project.media.images[0],
+  projectUrl: `/projects/${project.id}` // You can customize this URL structure
+}));
+---
+
+<!-- Title Section - SEPARATE FROM COMPONENT -->
+<div class="py-10 px-5" style="background: transparent; width: 100%;">
+  <div class="max-w-md mx-auto relative" style="padding: 20px 0;">
+    <h1 class="text-4xl font-medium text-center" style="color: #000 !important; font-size: 2.25rem; font-weight: 500; margin-bottom: 20px;">My Works</h1>
+    <!-- Inline SVG underline -->
+    <svg width="140" height="12" viewBox="0 0 140 12" fill="none" xmlns="http://www.w3.org/2000/svg" style="position: absolute; left: 50%; transform: translateX(-50%); bottom: 0;">
+      <path d="M2 8C20 4 40 2 70 6C100 10 120 9 138 8" stroke="#000" stroke-width="2.5" stroke-linecap="round"/>
+    </svg>
+  </div>
+</div>
+
+<!-- Testimonials Section -->
+<section class="py-10 space-y-10 px-5">
+
+  <!-- Testimonials Section -->
+  <div class="testimonials-container max-w-sm md:max-w-4xl mx-auto px-4 md:px-8 lg:px-12">
+    <div class="relative grid grid-cols-1 md:grid-cols-2 gap-8 md:gap-20">
+      <div>
+        <div class="relative w-full overflow-visible" style="height: 240px; perspective: 1000px;">
+          <div class="absolute inset-0" style="transform-style: preserve-3d;">
+            {testimonials.map((testimonial: any, index: number) => (
+              <div
+                class="testimonial-image absolute origin-bottom"
+                data-index={index}
+                style="width: 100%; height: 240px; left: 0; top: 0;"
+              >
+                <img
+                  src={testimonial.src}
+                  alt={testimonial.name}
+                  class="rounded-3xl object-cover object-center"
+                  style="width: 100%; height: 100%;"
+                  draggable="false"
+                />
+              </div>
+            ))}
+          </div>
+        </div>
+      </div>
+      
+      <div class="flex justify-between flex-col py-4">
+        <div class="testimonial-content">
+          <h3 class="text-2xl font-bold testimonial-name line-clamp-2" style="color: #000;"></h3>
+          <p class="text-sm testimonial-designation line-clamp-1 mt-2" style="color: #666;"></p>
+          <p class="text-lg mt-8 testimonial-quote line-clamp-4" style="color: #666;"></p>
+          <a
+            href="#"
+            id="view-more-btn"
+            class="inline-block mt-6 transition-colors duration-300 text-base font-medium"
+            style="color: #000;"
+          >
+            View More →
+          </a>
+        </div>
+        
+        <div class="flex gap-4 pt-12 md:pt-0">
+          <button
+            id="prev-btn"
+            class="h-7 w-7 rounded-full bg-gray-200 dark:bg-gray-800 flex items-center justify-center group hover:bg-gray-300 dark:hover:bg-gray-700 transition-colors"
+          >
+            <svg class="h-5 w-5 text-gray-900 dark:text-white transition-transform duration-300 group-hover:rotate-12" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+              <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M15 19l-7-7 7-7" />
+            </svg>
+          </button>
+          <button
+            id="next-btn"
+            class="h-7 w-7 rounded-full bg-gray-200 dark:bg-gray-800 flex items-center justify-center group hover:bg-gray-300 dark:hover:bg-gray-700 transition-colors"
+          >
+            <svg class="h-5 w-5 text-gray-900 dark:text-white transition-transform duration-300 group-hover:-rotate-12" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+              <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M9 5l7 7-7 7" />
+            </svg>
+          </button>
+        </div>
+      </div>
+    </div>
+  </div>
+</section>
+
+<style>
+  .testimonial-image {
+    opacity: 0.7;
+    transition: all 0.4s ease-in-out;
+    z-index: 1;
+    transform-style: preserve-3d;
+    will-change: transform, opacity;
+    pointer-events: none;
+    position: absolute;
+    transform-origin: bottom center;
+  }
+
+  .testimonial-image.active {
+    opacity: 1;
+    z-index: 999;
+  }
+
+  .testimonial-image img {
+    box-shadow: 0 25px 50px -12px rgba(0, 0, 0, 0.5);
+    display: block;
+  }
+
+  .testimonial-content {
+    animation: fadeInUp 0.2s ease-in-out;
+  }
+
+  @keyframes fadeInUp {
+    from {
+      opacity: 0;
+      transform: translateY(20px);
+    }
+    to {
+      opacity: 1;
+      transform: translateY(0);
+    }
+  }
+
+  @keyframes bounce {
+    0%, 100% { transform: translateY(0); }
+    50% { transform: translateY(-80px); }
+  }
+
+  .testimonial-image.active {
+    animation: bounce 0.4s ease-in-out;
+  }
+
+  @keyframes wordReveal {
+    from {
+      filter: blur(10px);
+      opacity: 0;
+      transform: translateY(5px);
+    }
+    to {
+      filter: blur(0px);
+      opacity: 1;
+      transform: translateY(0);
+    }
+  }
+
+  .word-animate {
+    display: inline-block;
+    animation: wordReveal 0.2s ease-in-out forwards;
+  }
+
+  /* Line clamping utilities */
+  .line-clamp-1 {
+    display: -webkit-box;
+    -webkit-line-clamp: 1;
+    -webkit-box-orient: vertical;
+    overflow: hidden;
+    text-overflow: ellipsis;
+  }
+
+  .line-clamp-2 {
+    display: -webkit-box;
+    -webkit-line-clamp: 2;
+    -webkit-box-orient: vertical;
+    overflow: hidden;
+    text-overflow: ellipsis;
+  }
+
+  .line-clamp-4 {
+    display: -webkit-box;
+    -webkit-line-clamp: 4;
+    -webkit-box-orient: vertical;
+    overflow: hidden;
+    text-overflow: ellipsis;
+  }
+
+  /* Ensure consistent heights */
+  .testimonial-name {
+    min-height: 3.5rem;
+  }
+
+  .testimonial-designation {
+    min-height: 1.5rem;
+  }
+
+  .testimonial-quote {
+    min-height: 7rem;
+  }
+</style>
+
+<script define:vars={{ testimonials }}>
+  let active = 0;
+  const totalTestimonials = testimonials.length;
+
+  function randomRotateY() {
+    return Math.floor(Math.random() * 21) - 10;
+  }
+
+  function updateTestimonial() {
+    // Update images with stacked effect
+    const images = document.querySelectorAll('.testimonial-image');
+    const isMobile = window.innerWidth < 768;
+    
+    images.forEach((img, index) => {
+      const isActive = index === active;
+      const offset = index - active;
+      
+      if (isActive) {
+        img.classList.add('active');
+        img.style.zIndex = '999';
+        img.style.transform = 'scale(1) translate(0, 0) rotateZ(0deg)';
+      } else {
+        img.classList.remove('active');
+        
+        // Calculate stacking position
+        const stackOffset = Math.abs(offset);
+        const direction = offset > 0 ? 1 : -1;
+        
+        // Adjust values for mobile to prevent overflow
+        const rotation = direction * Math.min(stackOffset * (isMobile ? 2 : 3), isMobile ? 5 : 10);
+        const translateX = direction * Math.min(stackOffset * (isMobile ? 8 : 15), isMobile ? 16 : 30);
+        const translateY = Math.min(stackOffset * (isMobile ? 6 : 10), isMobile ? 12 : 30);
+        const scale = Math.max(isMobile ? 0.9 : 0.85, 1 - stackOffset * 0.05);
+        
+        img.style.zIndex = String(999 - stackOffset * 100);
+        img.style.transform = `scale(${scale}) translate(${translateX}px, ${translateY}px) rotateZ(${rotation}deg)`;
+      }
+    });
+
+    // Update content with animation
+    const content = document.querySelector('.testimonial-content');
+    if (content) {
+      content.style.animation = 'none';
+      setTimeout(() => {
+        content.style.animation = 'fadeInUp 0.2s ease-in-out';
+      }, 10);
+    }
+
+    const nameEl = document.querySelector('.testimonial-name');
+    const designationEl = document.querySelector('.testimonial-designation');
+    const quoteEl = document.querySelector('.testimonial-quote');
+    const viewMoreBtn = document.getElementById('view-more-btn');
+
+    if (nameEl) nameEl.textContent = testimonials[active].name;
+    if (designationEl) designationEl.textContent = testimonials[active].designation;
+    if (viewMoreBtn) viewMoreBtn.href = testimonials[active].projectUrl;
+    
+    // Animate quote words
+    if (quoteEl) {
+      const words = testimonials[active].quote.split(' ');
+      quoteEl.innerHTML = '';
+      words.forEach((word, index) => {
+        const span = document.createElement('span');
+        span.className = 'word-animate';
+        span.style.animationDelay = `${0.02 * index}s`;
+        span.textContent = word + '\u00A0';
+        quoteEl.appendChild(span);
+      });
+    }
+  }
+
+  function handleNext() {
+    active = (active + 1) % totalTestimonials;
+    updateTestimonial();
+  }
+
+  function handlePrev() {
+    active = (active - 1 + totalTestimonials) % totalTestimonials;
+    updateTestimonial();
+  }
+
+  // Initialize
+  updateTestimonial();
+
+  // Add event listeners
+  const prevBtn = document.getElementById('prev-btn');
+  const nextBtn = document.getElementById('next-btn');
+
+  if (prevBtn) prevBtn.addEventListener('click', handlePrev);
+  if (nextBtn) nextBtn.addEventListener('click', handleNext);
+
+  // Autoplay
+  const autoplayInterval = setInterval(handleNext, 5000);
+
+  // Cleanup on page navigation
+  document.addEventListener('astro:before-swap', () => {
+    clearInterval(autoplayInterval);
+  });
+</script>

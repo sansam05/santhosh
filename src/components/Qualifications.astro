@@ -1,0 +1,82 @@
+---
+import Bars from "./Bars.astro"
+import svgUnderline from '../assets/underline.svg'
+import arrowCard from '../assets/arrow-card.svg'
+import { gsap } from 'gsap';
+
+const qualifications = [
+  { 
+    name: 'B.E. Computer Science and Engineering', 
+    desc: `3rd Year Student`,
+    institution: `College Name`,
+    cover: `https://placehold.co/400x200/F2F2F2/333333?text=B.E.+CSE`
+  },
+  { 
+    name: 'Internship', 
+    desc: `Completed an internship in Ahopez Innovations`,
+    institution: `Ahopez Innovations`,
+    cover: `https://placehold.co/400x200/F2F2F2/333333?text=Ahopez+Innovations`
+  },
+]
+
+
+
+const mytools = [
+  'HTML', 'CSS', 'JS', 'Svelte', 'Python', 'React', 'TensorFlow', 'PyTorch'
+]
+---
+
+<section class="py-25 space-y-10 px-5" id="qualifications">
+    <div class="max-w-md mx-auto relative ">
+      <h1 class="text-4xl font-medium text-center">Education & Certifications</h1>
+      <img src={svgUnderline.src} alt="underline" width="140" class="absolute left-50 -bottom-1" />
+    </div>
+  
+    <div class="max-w-3xl mx-auto grid grid-cols-1 md:grid-cols-2 gap-10"> 
+      {qualifications.map(item => ( 
+        <div class="flex flex-col bg-white p-5 group relative transition-all duration-200 hover:shadow-[4px_4px_0px_rgba(0,0,0,0.3)]">
+          <div class="w-full h-[200px] overflow-hidden border-2">
+           <img src={item.cover} alt="" class="w-full h-full object-cover" />
+          </div>
+          <div class="space-y-1 pt-4">
+            <div class="flex pr-2">
+              <h2 class="text-xl font-medium flex-1">{item.name}</h2>
+            </div>
+            <p class="mr-20">{item.desc}</p>
+          </div>
+          <Bars />
+        </div>
+      ))}
+
+    </div>
+</section>
+
+<section class="bg-black py-6 relative z-5">
+    <div class="overflow-hidden">
+      <div class="flex items-center gap-10 md:gap-30" id="tech-cloned">
+        {mytools.map(item => (
+          <div class="text-white flex-1 text-2xl whitespace-nowrap"> {item} </div>
+        ))}
+      </div>
+    </div>
+</section>
+
+<script>
+document.addEventListener('DOMContentLoaded', function () {
+    const clonedContainer = document.querySelector('#tech-cloned') as any;
+
+    // Clone and append to create an infinite scroll effect
+    Array.from(clonedContainer.children).forEach((img: any) => {
+        const clone = img.cloneNode(true); 
+        clonedContainer.appendChild(clone); 
+    });
+
+    // Use GSAP for the smooth horizontal scroll animation
+    gsap.to(clonedContainer, {
+        x: -(clonedContainer.scrollWidth / 2),
+        duration: 30,
+        ease: 'none',
+        repeat: -1
+    });
+});
+</script>
