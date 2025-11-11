@@ -58,7 +58,43 @@ interface ProjectListApiResponse {
   data: Project[];
 }
 
-// --- This tells Astro to render this page on-demand (SSR) ---
+// --- NEW getStaticPaths FUNCTION ---
+export async function getStaticPaths() {
+  const PROJECT_API_BASE = "https://portfolio.triodedevs.workers.dev";
+  const ALL_PROJECTS_API_URL = `${PROJECT_API_BASE}/public`;
+
+  try {
+    console.log('Fetching projects from:', ALL_PROJECTS_API_URL);
+    const response = await fetch(ALL_PROJECTS_API_URL);
+    
+    if (!response.ok) {
+      console.error(`Failed to fetch project list: ${response.status} ${response.statusText}`);
+      throw new Error(`Failed to fetch project list: ${response.statusText}`);
+    }
+    
+    const apiData = (await response.json()) as ProjectListApiResponse;
+    console.log('API Response:', apiData);
+    
+    if (!apiData.success || !apiData.data || !Array.isArray(apiData.data)) {
+      console.error("API response structure:", apiData);
+      throw new Error("API response was not successful or data is missing.");
+    }
+
+    console.log(`Found ${apiData.data.length} projects`);
+    
+    const paths = apiData.data.map(project => ({
+      params: { id: project.id },
+    }));
+    
+    console.log('Generated paths:', paths);
+    return paths;
+
+  } catch (error) {
+    console.error("Error in getStaticPaths:", error);
+    return [];
+  }
+}
+
 export const prerender = false;
 
 // --- 3. DATA FETCHING (for the page template) ---
@@ -141,30 +177,33 @@ const youtubeEmbedUrl = getYoutubeEmbedUrl(project.links.youtube || project.link
         </div>
       )}
 
-      <div class="relative w-full overflow-hidden bg-gray-100 border-2 py-4">
-        <div class="scroll-container">
-          <div class="scroll-track">
-            {project.media.images.map((imgUrl, index) => (
-              <img 
-                src={imgUrl} 
-                alt={`${project.title} screenshot ${index + 1}`} 
-                class="gallery-image border-2 cursor-pointer hover:scale-105 transition-transform duration-200"
-                data-index={index}
-              />
-            ))}
-          </div>
-          <div class="scroll-track" aria-hidden="true">
-            {project.media.images.map((imgUrl, index) => (
-              <img 
-                src={imgUrl} 
-                alt={`${project.title} screenshot ${index + 1}`} 
-                class="gallery-image border-2 cursor-pointer hover:scale-105 transition-transform duration-200"
-                data-index={index}
-              />
-            ))}
-          </div>
-        </div>
-      </div>
+      <!-- Infinite Auto-Scrolling Image Gallery -->
+      <!-- Infinite Auto-Scrolling Image Gallery - Fixed -->
+<div class="relative w-full overflow-hidden bg-gray-100 border-2 py-4">
+  <div class="scroll-container">
+    <div class="scroll-track">
+      {project.media.images.map((imgUrl, index) => (
+        <img 
+          src={imgUrl} 
+          alt={`${project.title} screenshot ${index + 1}`} 
+          class="gallery-image border-2 cursor-pointer hover:scale-105 transition-transform duration-200"
+          data-index={index}
+        />
+      ))}
+    </div>
+    <div class="scroll-track" aria-hidden="true">
+      {project.media.images.map((imgUrl, index) => (
+        <img 
+          src={imgUrl} 
+          alt={`${project.title} screenshot ${index + 1}`} 
+          class="gallery-image border-2 cursor-pointer hover:scale-105 transition-transform duration-200"
+          data-index={index}
+        />
+      ))}
+    </div>
+  </div>
+</div>
+
 
       <div class="flex border-t border-b border-gray-100 mb-2 py-4">
         <div class="flex-1 flex gap-6">
@@ -236,15 +275,15 @@ const youtubeEmbedUrl = getYoutubeEmbedUrl(project.links.youtube || project.link
           reviews.map(review => (
             <div class="flex flex-col gap-3 p-5 pr-10 bg-white border-2 shadow-[6px_6px_0px_rgba(0,0,0,0.3)]">
               <div class="flex justify-between items-center">
-                <h3 class="font-bold text-lg">{review.title}</h3>
-                <div class="flex">
+                 <h3 class="font-bold text-lg">{review.title}</h3>
+                 <div class="flex">
                   {[...Array(5)].map((_, i) => (
                     <i class:list={[
                       "ri-star-fill text-xl",
                       i < review.rating ? "text-yellow-400" : "text-gray-300"
                     ]}></i>
                   ))}
-                </div>
+                 </div>
               </div>
               <p class="text-gray-700">{review.content}</p>
               <div class="flex items-center gap-2 mt-2 border-t pt-3">
@@ -308,19 +347,24 @@ const youtubeEmbedUrl = getYoutubeEmbedUrl(project.links.youtube || project.link
     </div>
   </section>
 
+  <!-- Updated Lightbox with Navigation Buttons -->
   <div id="lightbox-overlay" class="hidden fixed inset-0 bg-black bg-opacity-90 z-50 flex items-center justify-center p-4">
     <button id="lightbox-close" class="absolute top-4 right-6 text-white text-5xl font-bold hover:text-gray-300 transition-colors z-10">&times;</button>
     
+    <!-- Previous Button -->
     <button id="lightbox-prev" class="absolute left-4 text-white text-5xl font-bold hover:text-gray-300 transition-colors z-10 bg-black bg-opacity-50 w-14 h-14 rounded-full flex items-center justify-center">
       <i class="ri-arrow-left-s-line"></i>
     </button>
     
+    <!-- Image -->
     <img id="lightbox-image" src="" alt="Enlarged project image" class="max-w-full max-h-full" />
     
+    <!-- Next Button -->
     <button id="lightbox-next" class="absolute right-4 text-white text-5xl font-bold hover:text-gray-300 transition-colors z-10 bg-black bg-opacity-50 w-14 h-14 rounded-full flex items-center justify-center">
       <i class="ri-arrow-right-s-line"></i>
     </button>
     
+    <!-- Image Counter -->
     <div id="lightbox-counter" class="absolute bottom-4 left-1/2 transform -translate-x-1/2 text-white text-lg font-medium bg-black bg-opacity-50 px-4 py-2 rounded-full">
       1 / 1
     </div>
@@ -380,6 +424,7 @@ const youtubeEmbedUrl = getYoutubeEmbedUrl(project.links.youtube || project.link
     }
   }
 </style>
+
 
 <script>
   document.addEventListener('DOMContentLoaded', () => {
@@ -523,7 +568,7 @@ const youtubeEmbedUrl = getYoutubeEmbedUrl(project.links.youtube || project.link
           if (!response.ok) throw new Error('Like request failed');
           const data = await response.json();
           if (data.like_count !== undefined) {
-            likeCountEl.innerText = data.like_count;
+             likeCountEl.innerText = data.like_count;
           }
         } catch (error) {
           console.error('Error liking project:', error);
@@ -562,15 +607,15 @@ const youtubeEmbedUrl = getYoutubeEmbedUrl(project.links.youtube || project.link
         star.addEventListener('click', () => setRating(parseInt(star.dataset.value || '0', 10)));
         star.addEventListener('mouseover', () => {
           const hoverValue = parseInt(star.dataset.value || '0', 10);
-          stars.forEach((s, i) => {
-            if (i < hoverValue) {
-              s.classList.remove('ri-star-line');
-              s.classList.add('ri-star-fill', 'text-yellow-400');
-            } else {
-              s.classList.add('ri-star-line');
-              s.classList.remove('ri-star-fill', 'text-yellow-400');
-            }
-          });
+           stars.forEach((s, i) => {
+             if (i < hoverValue) {
+               s.classList.remove('ri-star-line');
+               s.classList.add('ri-star-fill', 'text-yellow-400');
+             } else {
+               s.classList.add('ri-star-line');
+               s.classList.remove('ri-star-fill', 'text-yellow-400');
+             }
+           });
         });
       });
       starRatingContainer.addEventListener('mouseout', () => setRating(parseInt(ratingValueInput.value, 10)));
@@ -585,8 +630,8 @@ const youtubeEmbedUrl = getYoutubeEmbedUrl(project.links.youtube || project.link
       reviewForm.addEventListener('submit', async (e) => {
         e.preventDefault();
         if (ratingValueInput.value === '0') {
-          showStatus('Please select a star rating.', 'error');
-          return;
+           showStatus('Please select a star rating.', 'error');
+           return;
         }
         submitBtn.setAttribute('disabled', 'true');
         submitBtn.innerText = 'Submitting...';

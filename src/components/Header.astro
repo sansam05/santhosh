@@ -5,53 +5,50 @@ import { author, buy } from '../sample'
 
 const links = [
     { name: 'About', path: '/', target: '_self' },
-    { name: 'Projects', path: '/projects', target: '_self' },
+    { name: 'Projects', path: '/project', target: '_self' },
     { name: 'Hire Me', path: '/contact', target: '_self' },
-    { name: 'Socials', path: '/socials', target: '_self' },
+    { name: 'Socials', path: '/socials', target: '_self' }, // Added this line
     { name: 'Qualifications', path: '/qualifications', target: '_self' },
 ]
 
 const { pathname } = Astro.url
 ---
 
-<header class="relative border-b-3 p-4 md:p-7 overflow-hidden">
+<header class="relative border-b-3 p-7 overflow-hidden">
     <img src={svgPinkStar.src} alt="svg" width="80" class="absolute -right-9 -top-4" />
     <img src={svgPinkStar.src} alt="svg" width="80" class="absolute -left-8 -bottom-5 hidden md:block" />
 
-    <div class="flex border-3 border-black bg-white w-full max-w-5xl m-auto relative z-10">
+
+    <div class="flex border-3 border-black bg-white max-w-[310px] md:max-w-xl m-auto relative z-10">
         <div class="size-2 bg-white border-2 border-black absolute -top-2 -right-2"></div>
-        <div class="size-2 bg-white border-2 border-black absolute -top-2 -left-2"></div>
-        <div class="size-2 bg-white border-2 border-black absolute -bottom-2 -left-2"></div>
-        <div class="size-2 bg-white border-2 border-black absolute -bottom-2 -right-2"></div>
+        <div class="size-2 bg-white border-2 bg-white absolute -top-2 -left-2"></div>
+
+        <div class="size-2 bg-white border-2 bg-white absolute -bottom-2 -left-2"></div>
+        <div class="size-2 bg-white border-2 bg-white absolute -bottom-2 -right-2"></div>
     
-        <nav class="flex w-full items-center p-3 md:p-0">
+        <nav class="flex w-full items-center p-2 md:p-0">
             <div class="flex-1 font-bold">
-                <a href="/" class="flex items-center gap-2 md:pl-3">
-                    <img src={logoStar.src} alt="logo" width="26" /> 
-                    <span class="hidden sm:inline">{author.nickname}</span>
+                <a href="/" class="flex items-center gap-2 pl-3">
+                    <img src={logoStar.src} alt="logo" width="26" /> {author.nickname}
                 </a>
             </div>
-            <a href="#" class="flex md:hidden p-2" id="menu-open">
+            <a href="#" class="flex md:hidden" id="menu-open">
                 <i class="ri-menu-2-line text-2xl"></i>
             </a>
             <ul class="hidden md:flex">
                 {links.map(item => ( 
-                    <li class="border-l-2 border-black">
-                        <a 
-                            href={item.path} 
-                            target={item.target} 
-                            class="whitespace-nowrap relative flex items-center px-3 lg:px-4 py-4 before:absolute before:left-0 before:bottom-1 before:h-[8px] before:w-0 before:bg-[var(--yellow)] before:transition-all before:duration-300 hover:before:w-full"
-                        >
-                            <span class="relative z-5 text-sm lg:text-base">{item.name} {pathname == item.path ? '//' : ''}</span>
+                    <li class="border-l-2 border-black p-3 py-4">
+                        <a href={item.path} target={item.target} class="whitespace-nowrap relative flex items-center before:absolute before:left-0 before:bottom-1 before:h-[8px] before:w-0 before:bg-[var(--yellow)] before:transition-all before:duration-300 hover:before:w-full">
+                            <span class="relative z-5">{item.name} {pathname == item.path ? '//' : ''}</span>
                         </a>
                     </li>
                 ))}
             </ul>
         </nav>
     </div>
-</header>
+  </header>
 
-<div class="block md:hidden fixed left-0 top-0 h-full w-full bg-white z-50 p-3 transition-all duration-300 -translate-x-[100%]" id="menu-content">
+  <div class="block md:hidden fixed left-0 top-0 h-full w-full bg-white z-20 p-3 transition-all duration-300 -translate-x-[100%]" id="menu-content">
     <div class="flex p-6">
         <h3 class="flex-1 font-bold uppercase">Menu</h3>
         <a href="#" id="menu-close">               
@@ -67,13 +64,15 @@ const { pathname } = Astro.url
             </li>
         ))}
     </ul>
-</div>
+  </div>
+
 
 <script>
 document.addEventListener('DOMContentLoaded', function () {
     const menuContent = document.querySelector('#menu-content') 
     const menuOpen = document.querySelector('#menu-open') 
     const menuClose = document.querySelector('#menu-close') 
+
 
     menuOpen?.addEventListener('click', (e) => {
         e.preventDefault()
@@ -84,6 +83,7 @@ document.addEventListener('DOMContentLoaded', function () {
         e.preventDefault()
         menuContent?.classList.add('-translate-x-[100%]')
     })
+
 
     menuContent?.querySelectorAll('li a').forEach(item => {
         item.addEventListener('click', (e) => {
